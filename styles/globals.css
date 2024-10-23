@@ -1,0 +1,72 @@
+/* styles/globals.css */
+
+/* Основні стилі для сторінки */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+/* Таблиця */
+table {
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #3498db;
+  color: white;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+td {
+  font-size: 1rem;
+}
+
+/* Стилі для кожного рядка викидів */
+td div {
+  background-color: #ecf0f1;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5px 0;
+  color: #2c3e50;
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 768px) {
+  table {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
