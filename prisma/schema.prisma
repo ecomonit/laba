@@ -11,28 +11,25 @@ datasource db {
 }
 
 model Factory {
-  id        Int         @id @default(autoincrement())
-  email     String      @unique  // Можна зберігати унікальний ідентифікатор заводу
-  name      String?     // Назва заводу
-  location  String?     // Місце розташування
-  emissions Emission[]  // Зв’язок із таблицею викидів
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(100)
+  location  String     @db.VarChar(100)
+  emissions Emission[] // Relation to Emissions table
 }
 
 model Pollutant {
-  id        Int         @id @default(autoincrement())
-  title     String      // Назва забруднюючої речовини
-  content   String?     // Опис або характеристика
-  published Boolean     @default(false)
-  emissions Emission[]  // Зв’язок із таблицею викидів
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(100)
+  emissions Emission[] // Relation to Emissions table
 }
 
 model Emission {
-  id          Int       @id @default(autoincrement())
-  quantity    Float     // Кількість викидів
-  year        Int       // Рік викиду
-  destination String?   // Куди направляються викиди
-  factory     Factory   @relation(fields: [factoryId], references: [id])
-  factoryId   Int
-  pollutant   Pollutant @relation(fields: [pollutantId], references: [id])
-  pollutantId Int
+  id          Int        @id @default(autoincrement())
+  factory     Factory    @relation(fields: [factory_id], references: [id])
+  factory_id   Int        
+  pollutant   Pollutant  @relation(fields: [pollutant_id], references: [id])
+  pollutant_id Int        
+  year        Int
+  quantity    Float
+  destination String     @db.VarChar(50)
 }
