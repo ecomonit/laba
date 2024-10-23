@@ -10,18 +10,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model Factory {
+  id        Int         @id @default(autoincrement())
+  email     String      @unique  // Можна зберігати унікальний ідентифікатор заводу
+  name      String?     // Назва заводу
+  location  String?     // Місце розташування
+  emissions Emission[]  // Зв’язок із таблицею викидів
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Pollutant {
+  id        Int         @id @default(autoincrement())
+  title     String      // Назва забруднюючої речовини
+  content   String?     // Опис або характеристика
+  published Boolean     @default(false)
+  emissions Emission[]  // Зв’язок із таблицею викидів
+}
+
+model Emission {
+  id          Int       @id @default(autoincrement())
+  quantity    Float     // Кількість викидів
+  year        Int       // Рік викиду
+  destination String?   // Куди направляються викиди
+  factory     Factory   @relation(fields: [factoryId], references: [id])
+  factoryId   Int
+  pollutant   Pollutant @relation(fields: [pollutantId], references: [id])
+  pollutantId Int
 }

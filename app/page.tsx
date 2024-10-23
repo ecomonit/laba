@@ -1,11 +1,16 @@
-import Image from "next/image";
-import prisma from "@/lip/prisma";
+import Link from 'next/link';
 
-export default async function Home() {
-  const users = await prisma.user.findMany()
-  console.log(users);
-
+export default function HomePage() {
   return (
-   <h1>Hello world!</h1>
+    <div>
+      <h1>Ласкаво просимо до мого додатку!</h1>
+      <nav>
+        <ul>
+          <li>
+            <Link href="/Factory">Список Фабрик</Link>
+          </li>
+        </ul>
+      </nav>
+    </div>
   );
 }
