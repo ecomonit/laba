@@ -1,72 +1,113 @@
-/* styles/globals.css */
-
-/* Основні стилі для сторінки */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
-  color: #333;
-  margin: 0;
-  padding: 0;
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-/* Таблиця */
 table {
-  width: 90%;
-  margin: 20px auto;
+  width: calc(100% - 8cm); /* Уменьшаем ширину таблицы на 8 см, чтобы оставалось по 4 см с каждой стороны */
   border-collapse: collapse;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  background-color: white;
+  margin: 0 auto; /* Отцентровываем таблицу */
 }
 
 th, td {
-  padding: 12px 15px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
 }
 
-th {
-  background-color: #3498db;
+thead {
+  background-color: #ffdddd;
   color: white;
-  font-size: 1.1rem;
-  text-transform: uppercase;
 }
 
-tr:hover {
-  background-color: #f1f1f1;
+tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.sort-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-td {
-  font-size: 1rem;
+.sort-dropdown {
+  display: flex;
+  align-items: center;
 }
 
-/* Стилі для кожного рядка викидів */
-td div {
-  background-color: #ecf0f1;
-  padding: 5px;
+.sort-dropdown label {
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.sort-dropdown select {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  margin: 5px 0;
-  color: #2c3e50;
+  font-size: 1em;
+  cursor: pointer;
 }
 
-/* Адаптивність для мобільних пристроїв */
-@media (max-width: 768px) {
-  table {
-    width: 100%;
-    font-size: 0.9rem;
-  }
+.reset-button {
+  padding: 6px 12px;
+  background-color: #dc3545; /* Красный цвет для кнопки сброса */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
 
-  th, td {
-    padding: 10px;
-  }
+.reset-button:hover {
+  background-color: #c82333; /* Темный красный при наведении */
+}
+.search-and-sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
 
-  h1 {
-    font-size: 2rem;
-  }
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 250px;
+  margin-right: 10px;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+}
+
+.save-button {
+  padding: 8px 16px;
+  background-color: #28a745; /* Зеленый цвет */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-left: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+  background-color: #218838;
+}
+
+.delete-button {
+  padding: 4px 8px;
+  background-color: #dc3545; /* Красный цвет для удаления */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.marked-delete {
+  background-color: #ffdddd; /* Светло-красный цвет для отмеченных строк */
 }

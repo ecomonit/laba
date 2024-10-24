@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,22 +11,22 @@ model Factory {
   id        Int        @id @default(autoincrement())
   name      String     @db.VarChar(100)
   location  String     @db.VarChar(100)
-  emissions Emission[] // Relation to Emissions table
+  emissions Emission[]
 }
 
 model Pollutant {
   id        Int        @id @default(autoincrement())
   name      String     @db.VarChar(100)
-  emissions Emission[] // Relation to Emissions table
+  emissions Emission[]
 }
 
 model Emission {
-  id          Int        @id @default(autoincrement())
-  factory     Factory    @relation(fields: [factory_id], references: [id])
-  factory_id   Int        
-  pollutant   Pollutant  @relation(fields: [pollutant_id], references: [id])
-  pollutant_id Int        
-  year        Int
-  quantity    Float
-  destination String     @db.VarChar(50)
+  id           Int       @id @default(autoincrement())
+  quantity     Float
+  year         Int
+  destination  String    @db.VarChar(50)
+  factory_id   Int
+  pollutant_id Int
+  factory      Factory   @relation(fields: [factory_id], references: [id])
+  pollutant    Pollutant @relation(fields: [pollutant_id], references: [id])
 }
