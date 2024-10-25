@@ -9,10 +9,12 @@ interface Emission {
   quantity: number;
   pollutant: string;
   name: string;
+  factoryId: number;
   location: string;
 }
 
 interface Factory {
+  id: number;
   name: string;
   location: string;
   emissions: Emission[];
@@ -23,7 +25,9 @@ export default function FactoriesTable() {
   const [originalEmissions, setOriginalEmissions] = useState<Emission[]>([]);
   const [sortOrder, setSortOrder] = useState<string>('asc');
   const [sortCriteria, setSortCriteria] = useState<string>('year');
-  const [searchTerm, setSearchTerm] = useState<string>(''); // Состояние для поискового запроса
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [factories, setFactories] = useState<Factory[]>([]);
+  const [selectedFactory, setSelectedFactory] = useState<string>('all');
 
   useEffect(() => {
     fetch('/api/factories')
@@ -42,16 +46,17 @@ export default function FactoriesTable() {
             quantity: emission.quantity,
             pollutant: emission.pollutant,
             name: factory.name,
+            factoryId: factory.id,
             location: factory.location,
           }))
         );
         setEmissions(allEmissions);
-        setOriginalEmissions(allEmissions); // Сохраняем исходные данные
+        setOriginalEmissions(allEmissions);
+        setFactories(data);
       })
       .catch((error) => console.error('Error fetching emissions:', error));
   }, []);
 
-  // Функция сортировки
   const handleSort = (criteria: string) => {
     const sortedEmissions = [...emissions].sort((a, b) => {
       if (sortOrder === 'asc') {
@@ -64,55 +69,107 @@ export default function FactoriesTable() {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  // Обработчик изменения выпадающего списка
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCriteria = e.target.value;
     setSortCriteria(selectedCriteria);
     handleSort(selectedCriteria);
   };
 
-  // Функция сброса сортировки
   const resetSort = () => {
-    setEmissions(originalEmissions); // Возвращаем исходные данные
-    setSortCriteria('year'); // Сбрасываем выбранный критерий
-    setSortOrder('asc'); // Сбрасываем порядок сортировки
-    setSearchTerm(''); // Сбрасываем строку поиска
+    setEmissions(originalEmissions);
+    setSortCriteria('year');
+    setSortOrder('asc');
+    setSearchTerm('');
+    setSelectedFactory('all');
   };
 
-  // Функция удаления записи
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    filterEmissions(term, selectedFactory);
+  };
+
+  const handleFactorySelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const factoryId = e.target.value;
+    setSelectedFactory(factoryId);
+    filterEmissions(searchTerm, factoryId);
+  };
+
+  const filterEmissions = (term: string, factoryId: string) => {
+    let filteredEmissions = originalEmissions;
+
+    if (term) {
+      filteredEmissions = filteredEmissions.filter(emission =>
+        emission.year.toString().includes(term) ||
+        emission.pollutant.toLowerCase().includes(term) ||
+        emission.name.toLowerCase().includes(term)
+      );
+    }
+
+    if (factoryId !== 'all') {
+      filteredEmissions = filteredEmissions.filter(emission => emission.factoryId === parseInt(factoryId));
+    }
+
+    setEmissions(filteredEmissions);
+  };
+
+  const handleFactoryChange = (e: React.ChangeEvent<HTMLSelectElement>, id: number) => {
+    const selectedFactoryId = parseInt(e.target.value);
+    const selectedFactory = factories.find(factory => factory.id === selectedFactoryId);
+    const updatedEmissions = emissions.map((emission) =>
+      emission.id === id ? { ...emission, name: selectedFactory?.name || '', factoryId: selectedFactoryId } : emission
+    );
+    setEmissions(updatedEmissions);
+  };
+
+  const handleContentEditableChange = (id: number, field: keyof Emission, value: string) => {
+    const updatedEmissions = emissions.map((emission) =>
+      emission.id === id ? { ...emission, [field]: field === 'quantity' ? parseFloat(value) : value } : emission
+    );
+    setEmissions(updatedEmissions);
+  };
+
+  const saveEdit = async (id: number) => {
+    const editedEmission = emissions.find((emission) => emission.id === id);
+    if (editedEmission) {
+      try {
+        const res = await fetch(`/api/emissions/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            year: editedEmission.year,
+            quantity: editedEmission.quantity,
+            pollutant: editedEmission.pollutant,
+            factoryId: editedEmission.factoryId,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        setOriginalEmissions(emissions);
+      } catch (error) {
+        console.error('Error updating emission:', error);
+      }
+    }
+  };
+
   const deleteEmission = async (id: number) => {
     try {
-      const res = await fetch(`/api/emission/${id}`, {
+      const res = await fetch(`/api/emissions/${id}`, {
         method: 'DELETE',
       });
-  
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-  
-      // Оновлюємо стан після видалення
+
       const updatedEmissions = emissions.filter((emission) => emission.id !== id);
       setEmissions(updatedEmissions);
       setOriginalEmissions(updatedEmissions);
     } catch (error) {
       console.error('Error deleting emission:', error);
-    }
-  };
-  
-
-  // Обработчик изменения поискового поля с расширенным поиском
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value.toLowerCase(); // Приводим к нижнему регистру для удобства поиска
-    setSearchTerm(term);
-    if (term === '') {
-      setEmissions(originalEmissions); // Показать все данные, если строка поиска пуста
-    } else {
-      const filteredEmissions = originalEmissions.filter(emission =>
-        emission.year.toString().includes(term) || // Фильтр по году
-        emission.pollutant.toLowerCase().includes(term) || // Фильтр по виду загрязнителя
-        emission.name.toLowerCase().includes(term) // Фильтр по названию предприятия
-      );
-      setEmissions(filteredEmissions);
     }
   };
 
@@ -121,47 +178,81 @@ export default function FactoriesTable() {
       <div className="search-and-sort">
         <input
           type="text"
-          placeholder="Введите год, название загрязнителя или предприятия..."
+          placeholder="Введіть рік, назву забруднювача або підприємства..."
           value={searchTerm}
           onChange={handleSearchChange}
           className="search-input"
         />
         <div className="sort-controls">
           <div className="sort-dropdown">
-            <label htmlFor="sortCriteria">Сортировать по: </label>
-            <select id="sortCriteria" onChange={handleSelectChange} value={sortCriteria}>
-              <option value="year">Год</option>
-              <option value="name">Имя</option>
-              <option value="location">Местоположение</option>
-              <option value="pollutant">Вид загрязнителя</option>
+            <label htmlFor="factorySelect">Виберіть завод: </label>
+            <select id="factorySelect" onChange={handleFactorySelectChange} value={selectedFactory}>
+              <option value="all">Усі заводи</option>
+              {factories.map(factory => (
+                <option key={factory.id} value={factory.id}>{factory.name}</option>
+              ))}
             </select>
           </div>
-          <button onClick={resetSort} className="reset-button">Сбросить сортировку</button>
+          <div className="sort-dropdown">
+            <label htmlFor="sortCriteria">Сортувати за: </label>
+            <select id="sortCriteria" onChange={handleSelectChange} value={sortCriteria}>
+              <option value="year">Рік</option>
+              <option value="name">Назва</option>
+              <option value="pollutant">Вид забруднювача</option>
+            </select>
+          </div>
+          <button onClick={resetSort} className="reset-button">Скинути сортування</button>
         </div>
       </div>
       <table>
         <thead>
           <tr>
             <th>ID</th>
-            <th>Year</th>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Pollutants</th>
-            <th>Emissions</th>
-            <th>Actions</th>
+            <th>Рік</th>
+            <th>Назва</th>
+            <th>Забруднювач</th>
+            <th>Кількість</th>
+            <th>Дії</th>
           </tr>
         </thead>
         <tbody>
           {emissions.map((emission) => (
             <tr key={emission.id}>
               <td>{emission.id}</td>
-              <td>{emission.year}</td>
-              <td>{emission.name}</td>
-              <td>{emission.location}</td>
-              <td>{emission.pollutant}</td>
-              <td>{emission.quantity}</td>
+              <td
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => handleContentEditableChange(emission.id, 'year', e.currentTarget.textContent || '')}
+              >
+                {emission.year}
+              </td>
               <td>
-                <button onClick={() => deleteEmission(emission.id)}>Delete</button>
+                <select
+                  value={emission.factoryId}
+                  onChange={(e) => handleFactoryChange(e, emission.id)}
+                >
+                  {factories.map(factory => (
+                    <option key={factory.id} value={factory.id}>{factory.name}</option>
+                  ))}
+                </select>
+              </td>
+              <td
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => handleContentEditableChange(emission.id, 'pollutant', e.currentTarget.textContent || '')}
+              >
+                {emission.pollutant}
+              </td>
+              <td
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => handleContentEditableChange(emission.id, 'quantity', e.currentTarget.textContent || '')}
+              >
+                {emission.quantity}
+              </td>
+              <td>
+                <button className="save-button" onClick={() => saveEdit(emission.id)}>Зберегти</button>
+                <button className="delete-button" onClick={() => deleteEmission(emission.id)}>Видалити</button>
               </td>
             </tr>
           ))}

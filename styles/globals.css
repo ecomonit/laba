@@ -86,28 +86,29 @@ tbody tr:nth-child(even) {
   border-radius: 5px;
   cursor: pointer;
   font-size: 0.9em;
-  margin-left: 10px;
-  transition: background-color 0.3s ease;
+  margin-left: 5px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .save-button:hover {
   background-color: #218838;
+  transform: scale(1.05); /* Легкое увеличение */
 }
 
 .delete-button {
-  padding: 4px 8px;
+  padding: 8px 16px;
   background-color: #dc3545; /* Красный цвет для удаления */
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 0.8em;
+  font-size: 0.9em;
+  margin-left: 5px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .delete-button:hover {
   background-color: #c82333;
+  transform: scale(1.05); /* Легкое увеличение */
 }
 
-.marked-delete {
-  background-color: #ffdddd; /* Светло-красный цвет для отмеченных строк */
-}
